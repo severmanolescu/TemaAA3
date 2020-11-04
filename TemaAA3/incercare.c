@@ -8,6 +8,8 @@ struct Arbore
 
     struct Arbore* FiuStang; // Pointer catre fiul stang al nodului
     struct Arbore* FiuDrept; // Pointer catre fiul drept al nodului
+
+    //daad
 };
 
 // Lista simplu inlantuita pentru stergerea in preordine a nodurilor din lista
