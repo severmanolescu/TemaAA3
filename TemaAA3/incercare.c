@@ -23,7 +23,7 @@ struct Lista* list;
 
 FILE* fout; // Fisierul de output
 
-int k1; // Variabile folosite pentru a determina nuamrul de adaugari in lista efectuate
+int k1; // Variabile folosite pentru a determina numarul de adaugari in lista
 int k;
 
 int Maxim(int a, int b) // Functie de returnare a maximului pentru determianrea inaltimii unui nod in functie de fii sai
@@ -240,7 +240,7 @@ struct Arbore* FrateDreapta(struct Arbore* arb, struct Arbore* nod) // Funtie pe
                 return arb->FiuDrept; // In caz afirmativ returnam fiul drept
             }
 
-            return FrateDreapta(arb->FiuStang, nod); // In ca contrar reapelam functia recursiva catre ramura stanga
+            return FrateDreapta(arb->FiuStang, nod); // In caz contrar reapelam functia recursiva catre ramura stanga
         }
     }
 
@@ -396,69 +396,71 @@ void AfisareCuprindere(struct Arbore* arb) // Functie folosita pentru afisarea i
 
 struct Arbore* Suprimare(struct Arbore* arb, int cheie) // Functie de stergere a unui nod din arbore
 {
-    if (arb == NULL)
-        return arb;
+    if (arb == NULL) // Daca arborele este gol
+        return NULL; // Returnam NULL
 
-    if (cheie < arb->cheie)
-        arb->FiuStang = Suprimare(arb->FiuStang, cheie);
+    // Cautam nodul care dorim sa fie sters
+    if (cheie < arb->cheie) // Daca cheia nodului care dorim sa fie sters este mai mic decat cheia actuala
+        arb->FiuStang = Suprimare(arb->FiuStang, cheie); // Ne indreptam catre ramura stanga
 
-    else if (cheie > arb->cheie)
+    else if (cheie > arb->cheie) // Altfel ne indreptam catre ramura dreapta
         arb->FiuDrept = Suprimare(arb->FiuDrept, cheie);
 
-    else
+    else // Daca nodul a fost gasit
     {
-        if ((arb->FiuStang == NULL) || (arb->FiuDrept == NULL))
+        if ((arb->FiuStang == NULL) || (arb->FiuDrept == NULL)) // Verificam daca nodul are doar un fiu sau daca este frunza
         {
-            struct Arbore* aux = arb->FiuStang ? arb->FiuStang : arb->FiuDrept;
-
-            if (aux == NULL)
+            struct Arbore* aux = arb->FiuStang ? arb->FiuStang : arb->FiuDrept; // Initializam variabila ajutatoare cu fiul existent
+                                                                               // sau NULL in caz contrar
+            if (aux == NULL) // Daca nodul nu are  fii
             {
                 aux = arb;
                 arb = NULL;
             }
-            else
+
+            else // Daca nodul are doar un copil
             {
                 *arb = *aux;
             }
 
-            free(aux);
+            free(aux); // Eliberam memoria ocupata de nodul sters
         }
-        else
+        else // Daca nodul are 2 fii
         {
-            struct Arbore* aux = ValoareMaxima(arb->FiuStang);
+            struct Arbore* aux = ValoareMaxima(arb->FiuStang); // Initilizam variabila auxiliara cu nodul care urmeaza sa ia locul
+                                                              // nodului dupa stergere
+            arb->cheie = aux->cheie; // Initializam noul nod
 
-            arb->cheie = aux->cheie;
-
-            arb->FiuStang = Suprimare(arb->FiuStang, aux->cheie);
+            arb->FiuStang = Suprimare(arb->FiuStang, aux->cheie); // Apelam functia Suprimare pentru stergerea nodului
         }
     }
 
     if (arb == NULL)
-        return arb;
+        return NULL;
 
-    arb->inaltime = 1 + Maxim(inaltime(arb->FiuStang), inaltime(arb->FiuDrept));
+    arb->inaltime = 1 + Maxim(inaltime(arb->FiuStang), inaltime(arb->FiuDrept)); // Reinitializam inaltimea nodului
 
-    int balanta = Balansare(arb);
+    int balanta = Balansare(arb); // variabila folosita pentru determinarea cazului de dezechilibru
 
-    if (balanta > 1 && Balansare(arb->FiuStang) >= 0)
+    if (balanta > 1 && Balansare(arb->FiuStang) >= 0) // Vazul stanga-stanga
         return RotireDreapta(arb);
 
-    if (balanta > 1 && Balansare(arb->FiuStang) < 0)
+    if (balanta > 1 && Balansare(arb->FiuStang) < 0) // Cazul stanga dreapta
     {
         arb->FiuStang = RotireStanga(arb->FiuStang);
         return RotireDreapta(arb);
     }
 
-    if (balanta < -1 && Balansare(arb->FiuDrept) <= 0)
+    if (balanta < -1 && Balansare(arb->FiuDrept) <= 0) // Cazul dreapta dreapta
         return RotireStanga(arb);
 
-    if (balanta < -1 && Balansare(arb->FiuDrept) > 0)
+    if (balanta < -1 && Balansare(arb->FiuDrept) > 0) // Cazul dreapta stanga
     {
         arb->FiuDrept = RotireDreapta(arb->FiuDrept);
         return RotireStanga(arb);
     }
 
-    return arb;
+    return arb; // Returnam noul arbore
 }
 
 void AdaugareLista(int cheie) // Functie pentru generare functie simplu inlantuite cu nodurile arborelui in preordine
@@ -511,7 +513,6 @@ void GenerareLista(struct Arbore* arb) // Functie pentru generare listei simplu 
 int main()
 {
     struct Arbore* arb = NULL; // Variabila corespunzatoare arborelui
-    struct Arbore* auxiliar;
 
     struct Lista* q; // Variabila pentru parcurgerea listei
 
@@ -541,7 +542,7 @@ int main()
 
     if ((scanf("%d", &k)) == 0) // Citim variabila k
     {
-        perror("scanf"); // Mesaj de eroare daca nu s-a putut efectua citirea
+        perror("scanf"); // Mesaj de eroare daca nu s-a putut efectua citirea din consola
         exit(-1); // Iesire program
     }
 
